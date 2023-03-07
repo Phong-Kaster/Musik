@@ -2,13 +2,14 @@ package com.example.musik.Song
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.example.musik.Playerpage.PlayerActivity
 import com.example.musik.R
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -60,7 +61,7 @@ class SongAdapter constructor(private val context: Context, var list: ArrayList<
 
     /* Replace the contents of a view (invoked by the layout manager)*/
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        var song = list[position]
+        val song = list[position]
 
         /* Get element from your dataset at this position and replace the contents of the view with that element*/
         viewHolder.name.text = song.name
@@ -86,8 +87,9 @@ class SongAdapter constructor(private val context: Context, var list: ArrayList<
             }
             exoPlayer.prepare()
             exoPlayer.play()
+            val intent = Intent(context, PlayerActivity::class.java)
+            context.startActivity(intent)
         }
-
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -108,6 +110,7 @@ class SongAdapter constructor(private val context: Context, var list: ArrayList<
         {
             val elementMetaData = MediaMetadata.Builder()
                 .setTitle(song.name)
+                .setArtist(song.artist)
                 .setArtworkUri(song.albumCover)
                 .build()
 

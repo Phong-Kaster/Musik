@@ -28,6 +28,8 @@ import com.example.musik.Song.Song
 import com.example.musik.Song.SongAdapter
 import com.example.musik.databinding.ActivityHomeBinding
 import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player
 import java.util.*
 
 
@@ -36,6 +38,10 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var songAdapter: SongAdapter
     private var songList: ArrayList<Song> = ArrayList()
     private lateinit var homeBinding: ActivityHomeBinding
+
+    companion object{
+        val me = "Phong"
+    }
 
     private lateinit var exoPlayer: ExoPlayer
 
@@ -49,7 +55,12 @@ class HomeActivity : AppCompatActivity() {
         /*We check required permission. If everything's OK, we fetch all songs*/
         val flag = checkPermission()
         if( flag ) fetch()
+
+
+        /*set up event*/
+        setupEvent()
     }
+
 
     /**
      * @since 06-03-2023
@@ -301,6 +312,65 @@ class HomeActivity : AppCompatActivity() {
         songAdapter = SongAdapter(this, songList, exoPlayer)
         homeBinding.recyclerView.adapter = songAdapter
     }/*end showSongs*/
+
+
+    /**
+     * @since 07-03-2023
+     * set up event onClick
+     */
+    private fun setupEvent()
+    {
+        /*===Step 1: This object will update name, artist & album cover from song that users click on*/
+        val listener = object : Player.Listener {
+
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                super.onMediaItemTransition(mediaItem, reason)
+
+                //get name, artist & album cover
+                val name = mediaItem!!.mediaMetadata.title
+                val artist = mediaItem.mediaMetadata.artist
+                val albumCover = mediaItem.mediaMetadata.artworkUri
+
+                // update name, artist, album cover & play/pause button's icon
+                homeBinding.compactMediaControlName.text = name
+                homeBinding.compactMediaControlArtist.text = artist
+                homeBinding.compactMediaControlAlbumCover.setImageURI(albumCover)
+                homeBinding.compactMediaControlPlayPause.setImageResource(R.drawable.ic_pause_v2)
+            }
+        }
+        exoPlayer.addListener(listener)/*and finally we add the above listener to exo player*/
+
+
+        /*===Step 2: button play/ pause on Compact media Control*/
+        homeBinding.compactMediaControlPlayPause.setOnClickListener {
+            /*Step 2 - Case 1: exoplayer is playing music*/
+            if (exoPlayer.isPlaying) {
+                exoPlayer.pause()
+                homeBinding.compactMediaControlPlayPause.setImageResource(R.drawable.ic_play_v2)
+            }
+            /*Step 2 - Case 2: exoplayer is not playing music */
+            else {
+                exoPlayer.play()
+                homeBinding.compactMediaControlPlayPause.setImageResource(R.drawable.ic_pause_v2)
+            }
+        }/*end Step 2*/
+
+
+        /*===Step 3: button skip next & previous*/
+        homeBinding.compactMediaControlSkipPrevious.setOnClickListener {
+            if (exoPlayer.hasPreviousMediaItem()) {
+                exoPlayer.seekToPrevious()
+                exoPlayer.play()
+            }
+        }
+        homeBinding.compactMediaControlSkipNext.setOnClickListener {
+            if (exoPlayer.hasNextMediaItem()) {
+                exoPlayer.seekToNext()
+                exoPlayer.play()
+            }
+        }/*end Step 3*/
+    }
+
 
     /**
      * @since 06-03-2023

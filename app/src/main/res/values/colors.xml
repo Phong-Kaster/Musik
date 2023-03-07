@@ -10,11 +10,12 @@
 
     <!-- By Phong Kaster -->
     <color name="color_theme">#121212</color>
-
     <color name="color_gradient_start">#9b0493</color>
     <color name="color_gradient_end">#115ede</color>
 
     <color name="color_teal">#FF03DAC5</color>
     <color name="color_blue">#115ede</color>
     <color name="color_pink">#9b0493</color>
+
+    <color name="color_gray">#505050</color>
 </resources>

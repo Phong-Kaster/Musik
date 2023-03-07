@@ -7,6 +7,7 @@
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/background_song_artwork.xml" value="0.1335" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/background_theme.xml" value="0.1335" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/circle_indicator.xml" value="0.1335" />
+        <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_back.xml" value="0.1335" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_exit.xml" value="0.1335" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_next.xml" value="0.1335" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_pause.xml" value="0.1335" />
@@ -19,7 +20,9 @@
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_search.xml" value="0.1335" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/layout/activity_home.xml" value="0.2436923148431724" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/layout/activity_main.xml" value="0.2436923148431724" />
-        <entry key="..\:/GitHub/Musik/app/src/main/res/layout/recycler_view_element_song.xml" value="0.2436923148431724" />
+        <entry key="..\:/GitHub/Musik/app/src/main/res/layout/activity_music_player.xml" value="0.16666666666666666" />
+        <entry key="..\:/GitHub/Musik/app/src/main/res/layout/activity_player.xml" value="0.16770833333333332" />
+        <entry key="..\:/GitHub/Musik/app/src/main/res/layout/recycler_view_element_song.xml" value="0.36923078006541266" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/menu/menu_top.xml" value="0.16770833333333332" />
       </map>
     </option>

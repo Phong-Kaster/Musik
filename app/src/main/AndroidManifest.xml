@@ -4,7 +4,7 @@
     package="com.example.musik">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Musik"
         tools:targetApi="31">
+        <activity
+            android:name=".Playerpage.PlayerActivity"
+            android:exported="false" />
         <activity
             android:name=".Homepage.HomeActivity"
             android:exported="false" />
