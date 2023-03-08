@@ -10,11 +10,15 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.view.Menu
+import android.view.View.GONE
 import android.widget.SearchView
 import android.widget.SearchView.OnQueryTextListener
+import android.widget.SearchView.VISIBLE
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -38,11 +42,6 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var songAdapter: SongAdapter
     private var songList: ArrayList<Song> = ArrayList()
     private lateinit var homeBinding: ActivityHomeBinding
-
-    companion object{
-        val me = "Phong"
-    }
-
     private lateinit var exoPlayer: ExoPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +58,7 @@ class HomeActivity : AppCompatActivity() {
 
         /*set up event*/
         setupEvent()
+        setupEventForDefaultMusicPlayer()
     }
 
 
@@ -245,7 +245,9 @@ class HomeActivity : AppCompatActivity() {
             MediaStore.Audio.Media.ALBUM_ID,
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.SIZE)
+            MediaStore.Audio.Media.SIZE,
+            MediaStore.Audio.Media.DURATION
+        )
 
         /*Step 3: define order*/
         val sortOrder = MediaStore.Audio.Media.DEFAULT_SORT_ORDER
@@ -258,7 +260,9 @@ class HomeActivity : AppCompatActivity() {
 
         val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
         val artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+
         val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
+        val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
 
         while (cursor.moveToNext())
         {
@@ -268,11 +272,11 @@ class HomeActivity : AppCompatActivity() {
             val album = cursor.getString(albumColumn)
             val artist = cursor.getString(artistColumn)
             val size = cursor.getLong(sizeColumn) / 1000000// convert from byte to megabyte
-
+            val duration = cursor.getLong(durationColumn)
 
             val uriSong = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)// = song uri
             val uriAlbumCover = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), albumCover)// = album cover
-            val element = Song(uriAlbumCover, name, artist, album, uriSong)// = create a song instance
+            val element = Song(uriAlbumCover, name, artist, album, uriSong, duration)// = create a song instance
             if( size <= 0)// if size <= 0 MB then ignore this song
             {
                 continue
@@ -323,6 +327,21 @@ class HomeActivity : AppCompatActivity() {
         /*===Step 1: This object will update name, artist & album cover from song that users click on*/
         val listener = object : Player.Listener {
 
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                super.onPlaybackStateChanged(playbackState)
+                /*we have to wait ExoPlayer read entire file to get accuracy duration*/
+                if(playbackState == ExoPlayer.STATE_READY)
+                {
+                    val current = Multipurpose.getReadableTimestamp(exoPlayer.currentPosition.toInt())
+                    val duration = Multipurpose.getReadableTimestamp(exoPlayer.duration.toInt())
+
+                    homeBinding.defaultMediaControl.progressStart.text = current
+                    homeBinding.defaultMediaControl.progressEnd.text = duration
+                    homeBinding.defaultMediaControl.seekBar.progress = exoPlayer.currentPosition.toInt()
+                    homeBinding.defaultMediaControl.seekBar.max = exoPlayer.duration.toInt()
+                }
+            }
+
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 super.onMediaItemTransition(mediaItem, reason)
 
@@ -331,11 +350,24 @@ class HomeActivity : AppCompatActivity() {
                 val artist = mediaItem.mediaMetadata.artist
                 val albumCover = mediaItem.mediaMetadata.artworkUri
 
-                // update name, artist, album cover & play/pause button's icon
+
+
+                // for COMPACT MEDIA CONTROL,  update name, artist, album cover & play/pause button's icon
                 homeBinding.compactMediaControlName.text = name
                 homeBinding.compactMediaControlArtist.text = artist
                 homeBinding.compactMediaControlAlbumCover.setImageURI(albumCover)
                 homeBinding.compactMediaControlPlayPause.setImageResource(R.drawable.ic_pause_v2)
+
+
+                // for DEFAULT MEDIA CONTROL, update name, artist, album cover & play/pause button's icon
+                homeBinding.defaultMediaControl.name.text = name
+                homeBinding.defaultMediaControl.artist.text = artist
+                homeBinding.defaultMediaControl.albumCover.setImageURI(albumCover)
+                homeBinding.defaultMediaControl.buttonPlayPause.setImageResource(R.drawable.ic_pause)
+
+                //for DEFAULT MEDIA CONTROL(dmc), update progress & seek bar
+                dmcUpdateProgress()
+                dmcSetUpEvent()
             }
         }
         exoPlayer.addListener(listener)/*and finally we add the above listener to exo player*/
@@ -347,11 +379,13 @@ class HomeActivity : AppCompatActivity() {
             if (exoPlayer.isPlaying) {
                 exoPlayer.pause()
                 homeBinding.compactMediaControlPlayPause.setImageResource(R.drawable.ic_play_v2)
+                homeBinding.defaultMediaControl.buttonPlayPause.setImageResource(R.drawable.ic_play)
             }
             /*Step 2 - Case 2: exoplayer is not playing music */
             else {
                 exoPlayer.play()
                 homeBinding.compactMediaControlPlayPause.setImageResource(R.drawable.ic_pause_v2)
+                homeBinding.defaultMediaControl.buttonPlayPause.setImageResource(R.drawable.ic_pause)
             }
         }/*end Step 2*/
 
@@ -369,6 +403,32 @@ class HomeActivity : AppCompatActivity() {
                 exoPlayer.play()
             }
         }/*end Step 3*/
+    }
+
+    /**
+     * @since 07-03-2023
+     * this function establishes event clickOn for the layout included at the bottom of this activity
+     * this layout shows default media control instead of compact media control
+     *
+     * all clickOn events which  are declared in this function, is written in "activity_music_player"
+     */
+    private fun setupEventForDefaultMusicPlayer(){
+        /*Open default media control*/
+        homeBinding.compactMediaControl.setOnClickListener{
+            Multipurpose.slideUp(homeBinding.defaultMediaControl.layout)
+            homeBinding.appBarLayout.visibility = GONE
+            homeBinding.defaultMediaControl.layout.visibility = VISIBLE
+            homeBinding.defaultMediaControl.layout.isClickable = true
+        }
+
+        /*button close*/
+        homeBinding.defaultMediaControl.buttonClose.setOnClickListener{
+            Multipurpose.slideDown(homeBinding.defaultMediaControl.layout)
+            homeBinding.appBarLayout.visibility = VISIBLE
+            homeBinding.defaultMediaControl.layout.visibility = GONE
+            homeBinding.defaultMediaControl.layout.isClickable = false
+        }
+       /* button more*/
     }
 
 
@@ -389,5 +449,93 @@ class HomeActivity : AppCompatActivity() {
             if( name.contains(keyword) || artist.contains(keyword) ) {songListFiltered.add(element)}
         }
         songAdapter.reload(songListFiltered)
+    }
+
+
+    /**
+     * @since 08-03-2023
+     * on Back Pressed
+     */
+    override fun onBackPressed() {
+        if( homeBinding.defaultMediaControl.layout.visibility == VISIBLE)
+        {
+            Multipurpose.slideDown(homeBinding.defaultMediaControl.layout)
+            homeBinding.appBarLayout.visibility = VISIBLE
+            homeBinding.defaultMediaControl.layout.visibility = GONE
+            homeBinding.defaultMediaControl.layout.isClickable = false
+        }
+        else
+        {
+            super.onBackPressed()
+        }
+    }
+
+    /**
+     * @since 08-03-2023
+     * dmc stands for Default Media Control
+     * update progress & seekbar
+     * update indicator's position of seek bar every 1 second
+     */
+    private fun dmcUpdateProgress()
+    {
+        val mainLooper = Looper.getMainLooper()
+        val runnable = Runnable{
+            if( exoPlayer.isPlaying)
+            {
+                val current = Multipurpose.getReadableTimestamp(exoPlayer.currentPosition.toInt())
+                homeBinding.defaultMediaControl.progressStart.text = current
+                homeBinding.defaultMediaControl.seekBar.progress = exoPlayer.currentPosition.toInt()
+            }
+            dmcUpdateProgress()
+        }
+        Handler(mainLooper).postDelayed(runnable, 1000)
+    }
+
+    /**
+     * @since 08-03-2023
+     * dmc stands for Default Media Control
+     * set up event for default media control
+     */
+    private fun dmcSetUpEvent()
+    {
+        /*BUTTON PLAY/PAUSE*/
+        homeBinding.defaultMediaControl.buttonPlayPause.setOnClickListener{
+            /*Step 2 - Case 1: exoplayer is playing music*/
+            if (exoPlayer.isPlaying) {
+                exoPlayer.pause()
+                homeBinding.defaultMediaControl.buttonPlayPause.setImageResource(R.drawable.ic_play)
+            }
+            /*Step 2 - Case 2: exoplayer is not playing music */
+            else
+            {
+                exoPlayer.play()
+                homeBinding.defaultMediaControl.buttonPlayPause.setImageResource(R.drawable.ic_pause)
+            }
+        }/*end BUTTON PLAY/PAUSE*/
+
+        /*BUTTON SKIP PREVIOUS AND SKIP NEXT*/
+        homeBinding.defaultMediaControl.buttonSkipPrevious.setOnClickListener {
+            if (exoPlayer.hasPreviousMediaItem()) {
+                exoPlayer.seekToPrevious()
+                exoPlayer.play()
+            }
+        }
+        homeBinding.defaultMediaControl.buttonSkipNext.setOnClickListener {
+            if (exoPlayer.hasNextMediaItem()) {
+                exoPlayer.seekToNext()
+                exoPlayer.play()
+            }
+        }/*end BUTTON SKIP PREVIOUS AND SKIP NEXT*/
+
+
+        /*BUTTON REPEAT*/
+        homeBinding.defaultMediaControl.buttonRepeat.setOnClickListener {
+
+        }
+
+        /*BUTTON SHUFFLE*/
+        homeBinding.defaultMediaControl.buttonShuffle.setOnClickListener {
+
+        }
     }
 }

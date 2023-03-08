@@ -8,6 +8,7 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutHome"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".Homepage.HomeActivity"
@@ -50,7 +51,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/compactMediaControl"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="?attr/actionBarSize"
             android:background="@color/black"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -64,10 +65,10 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/img_song"
+                android:layout_marginTop="5dp"
                 android:layout_marginHorizontal="20dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:shapeAppearanceOverlay="@style/ImageView.Corner.Circle" />
 
             <TextView
@@ -78,7 +79,7 @@
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="10dp"
                 android:paddingTop="4dp"
-                android:text="@string/look_what_you_made_me_do"
+                android:text="@string/alone_together"
                 android:textColor="@color/white"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -89,7 +90,7 @@
                 android:id="@+id/compactMediaControlArtist"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:text="@string/taylor_swift"
+                android:text="@string/slogan"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textColor="@color/white"
@@ -102,35 +103,47 @@
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/compactMediaControlSkipNext"
                 android:layout_width="50dp"
-                android:layout_height="match_parent"
+                android:layout_height="50dp"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_skip_next_v2"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/compactMediaControlPlayPause"
                 android:layout_width="50dp"
-                android:layout_height="match_parent"
+                android:layout_height="50dp"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_play_v2"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/compactMediaControlSkipNext"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/compactMediaControlSkipPrevious"
                 android:layout_width="50dp"
-                android:layout_height="match_parent"
+                android:layout_height="50dp"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_skip_previous_v2"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/compactMediaControlPlayPause"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <include
+            android:id="@+id/defaultMediaControl"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            layout="@layout/activity_music_player"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

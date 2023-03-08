@@ -2,26 +2,26 @@ package com.example.musik.Song
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.musik.Playerpage.PlayerActivity
+import com.example.musik.Mutilpurpose.Multipurpose
 import com.example.musik.R
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.MediaMetadata
 import com.google.android.material.card.MaterialCardView
+import java.lang.Thread.sleep
 
 /**
  * @author Phong-Kaster
  * @since 03-03-2023
  * recycler view adapter for the "Song" class
  */
-class SongAdapter constructor(private val context: Context, var list: ArrayList<Song>,var exoPlayer: ExoPlayer) :
+class SongAdapter constructor(private val context: Context,private var list: ArrayList<Song>,private var exoPlayer: ExoPlayer) :
     RecyclerView.Adapter<SongAdapter.ViewHolder>() {
 
     /* Create new views (invoked by the layout manager)*/
@@ -73,7 +73,7 @@ class SongAdapter constructor(private val context: Context, var list: ArrayList<
             viewHolder.albumCover.setImageResource(R.drawable.img_song)
         }
 
-        /*onClick event - play song when clicked on*/
+/*        onClick event - play song when clicked on*/
         viewHolder.layout.setOnClickListener{
             if( exoPlayer.isPlaying )
             {
@@ -87,8 +87,6 @@ class SongAdapter constructor(private val context: Context, var list: ArrayList<
             }
             exoPlayer.prepare()
             exoPlayer.play()
-            val intent = Intent(context, PlayerActivity::class.java)
-            context.startActivity(intent)
         }
     }
 

@@ -26,4 +26,7 @@
     <string name="musik_needs_storage_permission">Musik needs STORAGE permission !</string>
     <string name="enter_keyword">Enter keyword</string>
     <string name="exit">Exit</string>
+    <string name="album_cover">Album Cover</string>
+    <string name="alone_together">Alone, Together</string>
+    <string name="_00_00">00:00</string>
 </resources>
