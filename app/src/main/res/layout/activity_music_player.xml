@@ -44,7 +44,7 @@
             android:paddingVertical="15dp"
             android:paddingHorizontal="15dp"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_arrow_down"
+            android:src="@drawable/ic_playlist"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -77,7 +77,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:paddingBottom="5dp"
-            android:text="@string/look_what_you_made_me_do"
+            android:text="@string/album_cover"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -88,7 +88,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="@string/taylor_swift"
+            android:text="@string/slogan"
             android:textColor="@color/white"
             android:textSize="14sp"
             android:textStyle="normal" />
@@ -138,12 +138,12 @@
             android:layout_height="match_parent">
 
             <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/buttonShuffle"
+                android:id="@+id/buttonRepeat"
                 android:layout_width="0dp"
                 android:layout_height="25dp"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                android:src="@drawable/ic_shuffle_on"
+                android:src="@drawable/ic_repeat_mode_off"
                 app:shapeAppearanceOverlay="@style/ImageView.Corner.Round" />
 
             <androidx.appcompat.widget.AppCompatImageButton
@@ -171,12 +171,12 @@
                 android:src="@drawable/ic_skip_next"/>
 
             <androidx.appcompat.widget.AppCompatImageButton
-                android:background="@android:color/transparent"
-                android:id="@+id/buttonRepeat"
+                android:id="@+id/buttonShuffle"
                 android:layout_width="0dp"
                 android:layout_height="25dp"
                 android:layout_weight="1"
-                android:src="@drawable/ic_repeat_all" />
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_shuffle_on" />
 
         </LinearLayout><!-- end Media Control -->
 

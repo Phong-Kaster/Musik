@@ -8,13 +8,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.musik.Mutilpurpose.Multipurpose
 import com.example.musik.R
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.MediaMetadata
 import com.google.android.material.card.MaterialCardView
-import java.lang.Thread.sleep
 
 /**
  * @author Phong-Kaster
@@ -82,7 +80,7 @@ class SongAdapter constructor(private val context: Context,private var list: Arr
             }
             else
             {
-                val items = getMediaItems()
+                val items = getMediaItems(list)
                 exoPlayer.setMediaItems(items, position, 0)
             }
             exoPlayer.prepare()
@@ -101,7 +99,7 @@ class SongAdapter constructor(private val context: Context,private var list: Arr
      * get all songs that their format is Media Item
      * @return ArrayList<MediaItem>
      */
-    private fun getMediaItems(): ArrayList<MediaItem>
+    fun getMediaItems(list: ArrayList<Song>): ArrayList<MediaItem>
     {
         val dataSet = arrayListOf<MediaItem>()
         for(song in list)

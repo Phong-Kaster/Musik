@@ -13,6 +13,14 @@
         <item name="cornerFamily">rounded</item>
     </style>
 
+    <style name="ImageView.Corner.Round.V2" parent="">
+        <item name="cornerSizeTopRight">8dp</item>
+        <item name="cornerSizeTopLeft">8dp</item>
+        <item name="cornerSizeBottomLeft">8dp</item>
+        <item name="cornerSizeBottomRight">8dp</item>
+        <item name="cornerFamily">rounded</item>
+    </style>
+
     <style name="ImageView.Corner.RoundBottom" parent="">
         <item name="cornerSizeBottomLeft">20dp</item>
         <item name="cornerSizeBottomRight">20dp</item>

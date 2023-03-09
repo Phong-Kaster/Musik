@@ -29,4 +29,5 @@
     <string name="album_cover">Album Cover</string>
     <string name="alone_together">Alone, Together</string>
     <string name="_00_00">00:00</string>
+    <string name="tap_to_shuffle">Tap to shuffle</string>
 </resources>

@@ -64,12 +64,12 @@
                 android:id="@+id/compactMediaControlAlbumCover"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/img_song"
+                android:src="@drawable/ic_musik"
                 android:layout_marginTop="5dp"
                 android:layout_marginHorizontal="20dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:shapeAppearanceOverlay="@style/ImageView.Corner.Circle" />
+                app:shapeAppearanceOverlay="@style/ImageView.Corner.Round.V2" />
 
             <TextView
                 android:id="@+id/compactMediaControlName"
@@ -79,7 +79,7 @@
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="10dp"
                 android:paddingTop="4dp"
-                android:text="@string/alone_together"
+                android:text="@string/tap_to_shuffle"
                 android:textColor="@color/white"
                 android:textSize="14sp"
                 android:textStyle="bold"

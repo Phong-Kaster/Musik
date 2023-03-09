@@ -15,10 +15,13 @@ import android.os.Looper
 import android.provider.MediaStore
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.view.Menu
+import android.view.View
 import android.view.View.GONE
 import android.widget.SearchView
 import android.widget.SearchView.OnQueryTextListener
 import android.widget.SearchView.VISIBLE
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -26,6 +29,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.musik.Mutilpurpose.Constant
 import com.example.musik.Mutilpurpose.Multipurpose
 import com.example.musik.R
 import com.example.musik.Song.Song
@@ -116,6 +120,7 @@ class HomeActivity : AppCompatActivity() {
         supportActionBar!!.setTitle(R.string.app_name)
 
         exoPlayer = ExoPlayer.Builder(this).build()
+        exoPlayer.shuffleModeEnabled = true/*by default, shuffle mode is enabled*/
     }
 
 
@@ -407,27 +412,42 @@ class HomeActivity : AppCompatActivity() {
 
     /**
      * @since 07-03-2023
+     * Default Media Control stands for D.M.C
+     * Compact Media Control stands for C.M.C
+     *
      * this function establishes event clickOn for the layout included at the bottom of this activity
      * this layout shows default media control instead of compact media control
      *
      * all clickOn events which  are declared in this function, is written in "activity_music_player"
      */
     private fun setupEventForDefaultMusicPlayer(){
-        /*Open default media control*/
+        /*====================SHOW D.M.C - clickOn C.M.C ====================*/
         homeBinding.compactMediaControl.setOnClickListener{
+
+            /*If the app is opened but none of songs is selected,
+            * users click on compact media control to shuffle list of songs and play music*/
+            if( !exoPlayer.isPlaying && !exoPlayer.hasNextMediaItem())
+            {
+                val items = songAdapter.getMediaItems(songList)
+                exoPlayer.setMediaItems(items)
+                exoPlayer.prepare()
+                exoPlayer.play()
+            }
+
+            /*Slide default media control up from the bottom of screen*/
             Multipurpose.slideUp(homeBinding.defaultMediaControl.layout)
             homeBinding.appBarLayout.visibility = GONE
             homeBinding.defaultMediaControl.layout.visibility = VISIBLE
             homeBinding.defaultMediaControl.layout.isClickable = true
-        }
+        }/*end SHOW D.M.C - clickOn C.M.C  */
 
-        /*button close*/
+        /*====================BUTTON CLOSE - HIDE D.M.C TEMPORARILY ====================*/
         homeBinding.defaultMediaControl.buttonClose.setOnClickListener{
             Multipurpose.slideDown(homeBinding.defaultMediaControl.layout)
             homeBinding.appBarLayout.visibility = VISIBLE
             homeBinding.defaultMediaControl.layout.visibility = GONE
             homeBinding.defaultMediaControl.layout.isClickable = false
-        }
+        }/*end BUTTON CLOSE*/
        /* button more*/
     }
 
@@ -498,7 +518,7 @@ class HomeActivity : AppCompatActivity() {
      */
     private fun dmcSetUpEvent()
     {
-        /*BUTTON PLAY/PAUSE*/
+        /*======================= BUTTON PLAY/PAUSE =======================*/
         homeBinding.defaultMediaControl.buttonPlayPause.setOnClickListener{
             /*Step 2 - Case 1: exoplayer is playing music*/
             if (exoPlayer.isPlaying) {
@@ -528,14 +548,70 @@ class HomeActivity : AppCompatActivity() {
         }/*end BUTTON SKIP PREVIOUS AND SKIP NEXT*/
 
 
-        /*BUTTON REPEAT*/
-        homeBinding.defaultMediaControl.buttonRepeat.setOnClickListener {
-
-        }
-
-        /*BUTTON SHUFFLE*/
+        /*======================= BUTTON SHUFFLE =======================*/
         homeBinding.defaultMediaControl.buttonShuffle.setOnClickListener {
+            if(exoPlayer.shuffleModeEnabled)// shuffle off
+            {
+                exoPlayer.shuffleModeEnabled = false
+                homeBinding.defaultMediaControl.buttonShuffle.setImageResource(R.drawable.ic_shuffle_off)
+                Toast.makeText(this, "Shuffle off", Toast.LENGTH_SHORT).show()
+            }
+            else// shuffle on
+            {
+                exoPlayer.shuffleModeEnabled = true
+                homeBinding.defaultMediaControl.buttonShuffle.setImageResource(R.drawable.ic_shuffle_on)
+                Toast.makeText(this, "Shuffle on", Toast.LENGTH_SHORT).show()
+            }
+        }/*end BUTTON SHUFFLE*/
 
-        }
+        /*======================= BUTTON REPEAT =======================*/
+        var repeatMode = Constant.REPEAT_MODE_OFF
+        homeBinding.defaultMediaControl.buttonRepeat.setOnClickListener {
+            if( repeatMode == Constant.REPEAT_MODE_ALL)// repeat on
+            {
+                repeatMode = Constant.REPEAT_MODE_ONE
+                exoPlayer.repeatMode = ExoPlayer.REPEAT_MODE_ALL
+                homeBinding.defaultMediaControl.buttonRepeat.setImageResource(R.drawable.ic_repeat_mode_all)
+                Toast.makeText(this, "Repeat mode all", Toast.LENGTH_SHORT).show()
+            }
+            else if( repeatMode == Constant.REPEAT_MODE_ONE)// repeat only one
+            {
+                repeatMode = Constant.REPEAT_MODE_OFF
+                exoPlayer.repeatMode = ExoPlayer.REPEAT_MODE_ONE
+                homeBinding.defaultMediaControl.buttonRepeat.setImageResource(R.drawable.ic_repeat_mode_one)
+                Toast.makeText(this, "Repeat mode one", Toast.LENGTH_SHORT).show()
+            }
+            else if( repeatMode == Constant.REPEAT_MODE_OFF )// repeat off
+            {
+                repeatMode = Constant.REPEAT_MODE_ALL
+                exoPlayer.repeatMode = ExoPlayer.REPEAT_MODE_OFF
+                homeBinding.defaultMediaControl.buttonRepeat.setImageResource(R.drawable.ic_repeat_mode_off)
+                Toast.makeText(this, "Repeat mode off", Toast.LENGTH_SHORT).show()
+            }
+        }/*end BUTTON REPEAT*/
+
+        /* ======================= SEEK BAR =======================*/
+        var progressPosition = 0// this variable stores the current position of seek bar
+        val seekBarListener = object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                progressPosition = seekBar.progress// update progress position
+            }
+            /*update current progress position after users leave their off seek bar*/
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                if( exoPlayer.playbackState == ExoPlayer.STATE_READY)
+                {
+                    exoPlayer.seekTo(progressPosition.toLong())
+                    homeBinding.defaultMediaControl.progressStart.text = Multipurpose.getReadableTimestamp(progressPosition)
+                    seekBar.progress = progressPosition
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+
+            }
+        }/*end seekBarListener*/
+        homeBinding.defaultMediaControl.seekBar.setOnSeekBarChangeListener(seekBarListener)
+        /*end SEEK BAR*/
     }
+
 }

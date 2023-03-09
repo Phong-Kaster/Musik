@@ -14,6 +14,7 @@
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_arrow_down.xml" value="0.1805" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_back.xml" value="0.1335" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_exit.xml" value="0.1335" />
+        <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_more.xml" value="0.1805" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_next.xml" value="0.1335" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_pause.xml" value="0.1335" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_pause_v2.xml" value="0.1335" />
@@ -23,7 +24,12 @@
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_previous.xml" value="0.1335" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_repeat.xml" value="0.1335" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_repeat_all.xml" value="0.1805" />
+        <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_repeat_looped.xml" value="0.1335" />
+        <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_repeat_mode_all.xml" value="0.1335" />
+        <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_repeat_mode_off.xml" value="0.1335" />
+        <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_repeat_mode_one.xml" value="0.1335" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_repeat_one.xml" value="0.1335" />
+        <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_repeat_random.xml" value="0.1335" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_search.xml" value="0.1335" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_shuffle_off.xml" value="0.1335" />
         <entry key="..\:/GitHub/Musik/app/src/main/res/drawable/ic_shuffle_on.xml" value="0.1335" />
