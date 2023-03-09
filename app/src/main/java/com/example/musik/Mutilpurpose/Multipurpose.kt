@@ -1,10 +1,15 @@
 package com.example.musik.Mutilpurpose
 
+import android.content.ContentResolver
 import android.content.Context
+import android.content.res.Resources
+import android.content.res.Resources.NotFoundException
+import android.net.Uri
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.view.animation.TranslateAnimation
+import androidx.annotation.AnyRes
 import androidx.core.content.ContextCompat
 import com.example.musik.R
 
@@ -79,6 +84,41 @@ class Multipurpose {
 
             output += "$minuteValue:$secondValue"
             return output
+        }
+
+        /**
+         * get uri to drawable or any other resource type if u wish
+         * @param context - context
+         * @param drawableId - drawable res id
+         * @return - uri
+         */
+        fun getUriToDrawable(
+            context: Context,
+            @AnyRes drawableId: Int
+        ): Uri {
+            return Uri.parse(
+                ContentResolver.SCHEME_ANDROID_RESOURCE
+                        + "://" + context.resources.getResourcePackageName(drawableId)
+                        + '/' + context.resources.getResourceTypeName(drawableId)
+                        + '/' + context.resources.getResourceEntryName(drawableId)
+            )
+        }
+
+        /**
+         * get uri to any resource type via given Resource Instance
+         * @param res - resources instance
+         * @param resId - resource id
+         * @throws Resources.NotFoundException if the given ID does not exist.
+         * @return - Uri to resource by given id
+         */
+        @Throws(NotFoundException::class)
+        fun getUriToResource(res: Resources, @AnyRes resId: Int): Uri {
+            return Uri.parse(
+                ContentResolver.SCHEME_ANDROID_RESOURCE +
+                        "://" + res.getResourcePackageName(resId)
+                        + '/' + res.getResourceTypeName(resId)
+                        + '/' + res.getResourceEntryName(resId)
+            )
         }
     }
 }

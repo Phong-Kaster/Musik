@@ -2,6 +2,7 @@ package com.example.musik.Song
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -71,8 +72,11 @@ class SongAdapter constructor(private val context: Context,private var list: Arr
             viewHolder.albumCover.setImageResource(R.drawable.img_song)
         }
 
-/*        onClick event - play song when clicked on*/
+        /*onClick event - play song when clicked on*/
         viewHolder.layout.setOnClickListener{
+            val intent = Intent(context.applicationContext, SongService::class.java)
+            context.startService(intent)
+
             if( exoPlayer.isPlaying )
             {
                 exoPlayer.pause()
@@ -104,6 +108,8 @@ class SongAdapter constructor(private val context: Context,private var list: Arr
         val dataSet = arrayListOf<MediaItem>()
         for(song in list)
         {
+
+
             val elementMetaData = MediaMetadata.Builder()
                 .setTitle(song.name)
                 .setArtist(song.artist)

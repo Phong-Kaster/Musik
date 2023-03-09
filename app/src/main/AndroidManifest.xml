@@ -4,7 +4,7 @@
     package="com.example.musik">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
@@ -17,13 +17,14 @@
         android:theme="@style/Theme.Musik"
         tools:targetApi="31">
         <activity
-            android:name=".Playerpage.PlayerActivity"
-            android:exported="false" />
-        <activity
             android:name=".Homepage.HomeActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,6 +32,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".Song.SongService"
+            android:enabled="true"
+            android:exported="false"/>
     </application>
 
 </manifest>

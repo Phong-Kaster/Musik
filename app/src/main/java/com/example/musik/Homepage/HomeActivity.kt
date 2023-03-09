@@ -2,20 +2,14 @@ package com.example.musik.Homepage
 
 import android.Manifest
 import android.app.AlertDialog
-import android.content.ContentUris
-import android.content.DialogInterface
-import android.content.Intent
+import android.content.*
 import android.content.Intent.*
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.os.*
 import android.provider.MediaStore
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.view.Menu
-import android.view.View
 import android.view.View.GONE
 import android.widget.SearchView
 import android.widget.SearchView.OnQueryTextListener
@@ -34,6 +28,7 @@ import com.example.musik.Mutilpurpose.Multipurpose
 import com.example.musik.R
 import com.example.musik.Song.Song
 import com.example.musik.Song.SongAdapter
+import com.example.musik.Song.SongService
 import com.example.musik.databinding.ActivityHomeBinding
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -47,6 +42,7 @@ class HomeActivity : AppCompatActivity() {
     private var songList: ArrayList<Song> = ArrayList()
     private lateinit var homeBinding: ActivityHomeBinding
     private lateinit var exoPlayer: ExoPlayer
+    private var isBounded = false /* is Song service bounded with Application, isn't it?*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,14 +51,8 @@ class HomeActivity : AppCompatActivity() {
         setupComponent()
 
 
-        /*We check required permission. If everything's OK, we fetch all songs*/
-        val flag = checkPermission()
-        if( flag ) fetch()
-
-
-        /*set up event*/
-        setupEvent()
-        setupEventForDefaultMusicPlayer()
+        /*setupEvent()*/
+        /*setupEventForDefaultMusicPlayer()*/
     }
 
 
@@ -76,13 +66,38 @@ class HomeActivity : AppCompatActivity() {
     }
 
     /**
+     * @since 09-03-2023
+     * if users open HomeActivity by clicking on Notification
+     */
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        if( exoPlayer.isPlaying)
+        {
+            val name  = exoPlayer.currentMediaItem!!.mediaMetadata.title.toString()
+            val albumCover  = exoPlayer.currentMediaItem!!.mediaMetadata.artworkUri
+            val artist = exoPlayer.currentMediaItem!!.mediaMetadata.artist
+
+            homeBinding.compactMediaControlName.text = name
+            homeBinding.compactMediaControlArtist.text = artist
+            homeBinding.compactMediaControlAlbumCover.setImageURI(albumCover)
+            homeBinding.compactMediaControlPlayPause.setImageResource(R.drawable.ic_pause_v2)
+        }
+    }
+
+    /**
      * @since 06-03-2023
      * on destroy
      */
     override fun onDestroy() {
         super.onDestroy()
-        if(exoPlayer.isPlaying) { exoPlayer.stop() }
-        exoPlayer.release()
+        /*if(exoPlayer.isPlaying) { exoPlayer.stop() }
+        exoPlayer.release()*/
+        if(isBounded)
+        {
+            unbindService(serviceConnection)
+            isBounded = false
+        }
     }
 
     /**
@@ -119,8 +134,36 @@ class HomeActivity : AppCompatActivity() {
         setSupportActionBar(homeBinding.toolbar)
         supportActionBar!!.setTitle(R.string.app_name)
 
-        exoPlayer = ExoPlayer.Builder(this).build()
-        exoPlayer.shuffleModeEnabled = true/*by default, shuffle mode is enabled*/
+        /*exoPlayer = ExoPlayer.Builder(this).build()*/
+        /*exoPlayer is created in foreground service*/
+        val intent = Intent(this, SongService::class.java)
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+
+    /**
+     * @since 09-03-2023
+     * service connection - this object handles event after application sets up service successfully.
+     */
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(p0: ComponentName?, iBinder: IBinder?) {
+            val binder : SongService.SongBinder = iBinder as SongService.SongBinder
+            exoPlayer = binder.getInstance().exoPlayer
+            exoPlayer.shuffleModeEnabled = true/*by default, shuffle mode is enabled*/
+            isBounded = true
+
+            val flag = checkPermission()
+            if( flag )
+            {
+                fetch()
+                setupEvent()
+                setupEventForDefaultMusicPlayer()
+                onNewIntent(intent)
+            }
+        }
+        override fun onServiceDisconnected(p0: ComponentName?) {
+            TODO("Not yet implemented")
+        }
     }
 
 
@@ -292,9 +335,7 @@ class HomeActivity : AppCompatActivity() {
 
         /*Step 4: show*/
         setupRecyclerView(songs)
-
-
-    }/*end fun fetch*/
+    }/*end fun fetch()*/
 
     /**
      * @since 06-03-2023
@@ -320,7 +361,7 @@ class HomeActivity : AppCompatActivity() {
 
         songAdapter = SongAdapter(this, songList, exoPlayer)
         homeBinding.recyclerView.adapter = songAdapter
-    }/*end showSongs*/
+    }/*end setupRecyclerView*/
 
 
     /**
@@ -432,6 +473,7 @@ class HomeActivity : AppCompatActivity() {
                 exoPlayer.setMediaItems(items)
                 exoPlayer.prepare()
                 exoPlayer.play()
+                Toast.makeText(this, "Enjoy this moment!", Toast.LENGTH_SHORT).show()
             }
 
             /*Slide default media control up from the bottom of screen*/
@@ -567,26 +609,28 @@ class HomeActivity : AppCompatActivity() {
         /*======================= BUTTON REPEAT =======================*/
         var repeatMode = Constant.REPEAT_MODE_OFF
         homeBinding.defaultMediaControl.buttonRepeat.setOnClickListener {
-            if( repeatMode == Constant.REPEAT_MODE_ALL)// repeat on
-            {
-                repeatMode = Constant.REPEAT_MODE_ONE
-                exoPlayer.repeatMode = ExoPlayer.REPEAT_MODE_ALL
-                homeBinding.defaultMediaControl.buttonRepeat.setImageResource(R.drawable.ic_repeat_mode_all)
-                Toast.makeText(this, "Repeat mode all", Toast.LENGTH_SHORT).show()
-            }
-            else if( repeatMode == Constant.REPEAT_MODE_ONE)// repeat only one
-            {
-                repeatMode = Constant.REPEAT_MODE_OFF
-                exoPlayer.repeatMode = ExoPlayer.REPEAT_MODE_ONE
-                homeBinding.defaultMediaControl.buttonRepeat.setImageResource(R.drawable.ic_repeat_mode_one)
-                Toast.makeText(this, "Repeat mode one", Toast.LENGTH_SHORT).show()
-            }
-            else if( repeatMode == Constant.REPEAT_MODE_OFF )// repeat off
-            {
-                repeatMode = Constant.REPEAT_MODE_ALL
-                exoPlayer.repeatMode = ExoPlayer.REPEAT_MODE_OFF
-                homeBinding.defaultMediaControl.buttonRepeat.setImageResource(R.drawable.ic_repeat_mode_off)
-                Toast.makeText(this, "Repeat mode off", Toast.LENGTH_SHORT).show()
+            when (repeatMode) {
+                Constant.REPEAT_MODE_ALL// repeat on
+                -> {
+                    repeatMode = Constant.REPEAT_MODE_ONE
+                    exoPlayer.repeatMode = ExoPlayer.REPEAT_MODE_ALL
+                    homeBinding.defaultMediaControl.buttonRepeat.setImageResource(R.drawable.ic_repeat_mode_all)
+                    Toast.makeText(this, "Repeat mode all", Toast.LENGTH_SHORT).show()
+                }
+                Constant.REPEAT_MODE_ONE// repeat only one
+                -> {
+                    repeatMode = Constant.REPEAT_MODE_OFF
+                    exoPlayer.repeatMode = ExoPlayer.REPEAT_MODE_ONE
+                    homeBinding.defaultMediaControl.buttonRepeat.setImageResource(R.drawable.ic_repeat_mode_one)
+                    Toast.makeText(this, "Repeat mode one", Toast.LENGTH_SHORT).show()
+                }
+                Constant.REPEAT_MODE_OFF// repeat off
+                -> {
+                    repeatMode = Constant.REPEAT_MODE_ALL
+                    exoPlayer.repeatMode = ExoPlayer.REPEAT_MODE_OFF
+                    homeBinding.defaultMediaControl.buttonRepeat.setImageResource(R.drawable.ic_repeat_mode_off)
+                    Toast.makeText(this, "Repeat mode off", Toast.LENGTH_SHORT).show()
+                }
             }
         }/*end BUTTON REPEAT*/
 
