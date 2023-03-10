@@ -114,7 +114,7 @@ class HomeActivity : AppCompatActivity() {
      */
     override fun onDestroy() {
         super.onDestroy()
-        if( isBounded )
+        if( isBounded && !exoPlayer.isPlaying )
         {
             unbindService(serviceConnection)
             isBounded = false
