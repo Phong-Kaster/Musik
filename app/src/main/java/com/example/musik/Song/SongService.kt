@@ -76,7 +76,7 @@ class SongService : Service() {
             .build()
 
         notificationManager.setPlayer(exoPlayer)
-        notificationManager.setUseStopAction(true)
+        notificationManager.setUseStopAction(false)
         notificationManager.setPriority(NotificationCompat.PRIORITY_MAX)
         notificationManager.setUseRewindAction(false)
         notificationManager.setUseFastForwardAction(false)
