@@ -65,21 +65,21 @@ class SongService : Service() {
             .setNotificationListener(notificationListener)
             .setMediaDescriptionAdapter(descriptionAdapter)
             .setChannelImportance(IMPORTANCE_HIGH)
-            .setSmallIconResourceId(R.drawable.ic_key_music)
+            .setSmallIconResourceId(R.drawable.ic_swastika)
             .setChannelNameResourceId(R.string.app_name)
             .setChannelDescriptionResourceId(R.drawable.ic_key_music)
             .setNextActionIconResourceId(R.drawable.ic_skip_next_v2)
             .setPreviousActionIconResourceId(R.drawable.ic_skip_previous_v2)
             .setPlayActionIconResourceId(R.drawable.ic_play_v2)
             .setPauseActionIconResourceId(R.drawable.ic_pause_v2)
-            .setStopActionIconResourceId(R.drawable.ic_exit)
+            .setStopActionIconResourceId(R.drawable.ic_close)
             .build()
 
         notificationManager.setPlayer(exoPlayer)
         notificationManager.setUseStopAction(true)
         notificationManager.setPriority(NotificationCompat.PRIORITY_MAX)
-        notificationManager.setUseRewindAction(true)
-        notificationManager.setUseFastForwardAction(true)
+        notificationManager.setUseRewindAction(false)
+        notificationManager.setUseFastForwardAction(false)
     }
 
     /**
@@ -90,7 +90,7 @@ class SongService : Service() {
      */
     override fun onDestroy() {
         super.onDestroy()
-        if( exoPlayer.isPlaying ) exoPlayer.stop()
+        if( exoPlayer.isPlaying ) { exoPlayer.stop() }
         notificationManager.setPlayer(null)
         exoPlayer.release()
         stopForeground(true)
@@ -108,16 +108,7 @@ class SongService : Service() {
 
         @RequiresApi(Build.VERSION_CODES.M)
         override fun createCurrentContentIntent(player: Player): PendingIntent? {
-
-            /*Step 0: define value to send back HomeActivity if users click on notification media control*/
-            val albumCoverValue = exoPlayer.currentMediaItem!!.mediaMetadata.artworkUri
-            val nameValue = exoPlayer.currentMediaItem!!.mediaMetadata.title
-            val artistValue = exoPlayer.currentMediaItem!!.mediaMetadata.artist
-
            val intent = Intent( applicationContext, HomeActivity::class.java)/*open Main activity intent*/
-            intent.putExtra("name", nameValue)
-            intent.putExtra("artiest", artistValue)
-            intent.putExtra("albumCover", albumCoverValue)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 
             val openIntent = PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
@@ -175,6 +166,8 @@ class SongService : Service() {
             startForeground(notificationId, notification)
         }
     }/*end notification listener*/
+
+
 
     /**
      * @since 09-03-2023

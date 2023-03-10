@@ -53,6 +53,7 @@ class HomeActivity : AppCompatActivity() {
 
         /*setupEvent()*/
         /*setupEventForDefaultMusicPlayer()*/
+        dmcSetUpEvent()
     }
 
 
@@ -67,33 +68,53 @@ class HomeActivity : AppCompatActivity() {
 
     /**
      * @since 09-03-2023
-     * if users open HomeActivity by clicking on Notification
+     * if users open status bar & click on Music Player notification
      */
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-
-        if( exoPlayer.isPlaying)
+        dmcUpdateProgress()
+        /*If exoPlayer is playing or pausing*/
+        if( exoPlayer.isPlaying || !exoPlayer.isPlaying && exoPlayer.hasPreviousMediaItem())
         {
             val name  = exoPlayer.currentMediaItem!!.mediaMetadata.title.toString()
             val albumCover  = exoPlayer.currentMediaItem!!.mediaMetadata.artworkUri
             val artist = exoPlayer.currentMediaItem!!.mediaMetadata.artist
 
+
+
+            /*for COMPACT MEDIA CONTROL, update name, artist & album cover*/
+            val iconCompact = if( exoPlayer.isPlaying ) R.drawable.ic_pause_v2 else R.drawable.ic_play_v2
             homeBinding.compactMediaControlName.text = name
             homeBinding.compactMediaControlArtist.text = artist
             homeBinding.compactMediaControlAlbumCover.setImageURI(albumCover)
-            homeBinding.compactMediaControlPlayPause.setImageResource(R.drawable.ic_pause_v2)
+            homeBinding.compactMediaControlPlayPause.setImageResource(iconCompact)
+
+            /*for DEFAULT MEDIA CONTROL, update name, artiest & album cover*/
+            val iconDefault = if( exoPlayer.isPlaying ) R.drawable.ic_pause else R.drawable.ic_play
+            homeBinding.defaultMediaControl.name.text = name
+            homeBinding.defaultMediaControl.artist.text = artist
+            homeBinding.defaultMediaControl.albumCover.setImageURI(albumCover)
+            homeBinding.defaultMediaControl.buttonPlayPause.setImageResource(iconDefault)
+
+            /* DEFAULT MEDIA CONTROL, update seek bar & progress view*/
+            val current = Multipurpose.getReadableTimestamp(exoPlayer.currentPosition.toInt())
+            val duration = Multipurpose.getReadableTimestamp(exoPlayer.duration.toInt())
+
+            homeBinding.defaultMediaControl.progressStart.text = current
+            homeBinding.defaultMediaControl.progressEnd.text = duration
+            homeBinding.defaultMediaControl.seekBar.progress = exoPlayer.currentPosition.toInt()
+            homeBinding.defaultMediaControl.seekBar.max = exoPlayer.duration.toInt()
         }
     }
 
     /**
      * @since 06-03-2023
-     * on destroy
+     * on destroy if exoPlayer is not playing & song service is bounded
+     * then when OnDestroy active, we will close the app
      */
     override fun onDestroy() {
         super.onDestroy()
-        /*if(exoPlayer.isPlaying) { exoPlayer.stop() }
-        exoPlayer.release()*/
-        if(isBounded)
+        if( isBounded )
         {
             unbindService(serviceConnection)
             isBounded = false
@@ -156,8 +177,8 @@ class HomeActivity : AppCompatActivity() {
             if( flag )
             {
                 fetch()
-                setupEvent()
-                setupEventForDefaultMusicPlayer()
+                cmcSetupEvent()
+                dmcSetupEvent()
                 onNewIntent(intent)
             }
         }
@@ -366,9 +387,11 @@ class HomeActivity : AppCompatActivity() {
 
     /**
      * @since 07-03-2023
+     * Default Media Control stands for D.M.C
+     * Compact Media Control stands for C.M.C
      * set up event onClick
      */
-    private fun setupEvent()
+    private fun cmcSetupEvent()
     {
         /*===Step 1: This object will update name, artist & album cover from song that users click on*/
         val listener = object : Player.Listener {
@@ -412,8 +435,8 @@ class HomeActivity : AppCompatActivity() {
                 homeBinding.defaultMediaControl.buttonPlayPause.setImageResource(R.drawable.ic_pause)
 
                 //for DEFAULT MEDIA CONTROL(dmc), update progress & seek bar
-                dmcUpdateProgress()
-                dmcSetUpEvent()
+                /*dmcUpdateProgress()
+                dmcSetUpEvent()*/
             }
         }
         exoPlayer.addListener(listener)/*and finally we add the above listener to exo player*/
@@ -461,7 +484,7 @@ class HomeActivity : AppCompatActivity() {
      *
      * all clickOn events which  are declared in this function, is written in "activity_music_player"
      */
-    private fun setupEventForDefaultMusicPlayer(){
+    private fun dmcSetupEvent(){
         /*====================SHOW D.M.C - clickOn C.M.C ====================*/
         homeBinding.compactMediaControl.setOnClickListener{
 
